@@ -39,8 +39,9 @@ class ChatGPTTelegramBot:
         self.commands = [
             BotCommand(command='help', description=localized_text('help_description', bot_language)),
             BotCommand(command='reset', description=localized_text('reset_description', bot_language)),
-            BotCommand(command='stats', description=localized_text('stats_description', bot_language)),
-            BotCommand(command='resend', description=localized_text('resend_description', bot_language))
+            # BotCommand(command='stats', description=localized_text('stats_description', bot_language)),
+            BotCommand(command='resend', description=localized_text('resend_description', bot_language)),
+            BotCommand(command='offer', description='Публичная оферта'),
         ]
         # If imaging is enabled, add the "image" command to the list
         if self.config.get('enable_image_generation', False):
@@ -72,6 +73,27 @@ class ChatGPTTelegramBot:
                 localized_text('help_text', bot_language)[2]
         )
         await update.message.reply_text(help_text, disable_web_page_preview=True)
+
+
+    async def offer(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        msg = """
+Используя данный бот вы соглашаетесь с условиями публичной оферты.
+
+ПРЕДМЕТ ДОГОВОРА
+Исполнитель предоставляет Клиенту во временное пользование, на условиях виртуального доступа онлайн сервисы, а Клиент, в свою очередь, осуществляет оплату услуг Исполнителя в порядке и на условиях, установленных настоящим Договором.
+
+Исполнитель осуществляет постоянную техническую поддержку Сервиса и обеспечивает его бесперебойную работу.
+
+При надлежащем исполнении Клиентом своих обязанностей по оплате услуг, Исполнитель гарантирует бесперебойную работу Сервиса в течение каждого Расчетного периода. При этом Исполнитель оставляет за собой право приостановить работу Сервиса на период проведения регулярных технических работ, которые могут проводиться не более 24 (двадцати четырех) часов за период 30-ти календарных дней.
+
+Индивидуальный предприниматель Шабуров Артем Дмитриевич
+ИНН 540544995865
+Поддержка:
+support@whytry.garden
++79657144356
+        """
+        await update.message.reply_text(msg, parse_mode=constants.ParseMode.MARKDOWN)
+
 
     async def stats(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
@@ -789,6 +811,7 @@ class ChatGPTTelegramBot:
         application.add_handler(CommandHandler('start', self.help))
         application.add_handler(CommandHandler('stats', self.stats))
         application.add_handler(CommandHandler('resend', self.resend))
+        application.add_handler(CommandHandler('offer', self.offer))
         application.add_handler(CommandHandler(
             'chat', self.prompt, filters=filters.ChatType.GROUP | filters.ChatType.SUPERGROUP)
         )
